@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mine_sweeper/ui/theme/colors.dart';
+import 'package:mine_sweeper/utils/game_helper.dart';
 
 class MainScreenApp extends StatefulWidget {
   const MainScreenApp({super.key});
@@ -9,6 +10,14 @@ class MainScreenApp extends StatefulWidget {
 }
 
 class _MainScreenAppState extends State<MainScreenApp> {
+  MineSweeperGame game = MineSweeperGame();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    game.generateMap();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,7 +97,56 @@ class _MainScreenAppState extends State<MainScreenApp> {
                 ),
               )
             ],
-          )
+          ),
+          Container(
+              width: double.infinity,
+              height: 500.0,
+              padding: const EdgeInsets.all(20.0),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: MineSweeperGame.row,
+                  crossAxisSpacing: 4.0,
+                  mainAxisSpacing: 4.0,
+                ),
+                itemCount: MineSweeperGame.cellCount,
+                itemBuilder: (BuildContext ctx, index) {
+                  Color cellColor = game.gameMap[index].reveal
+                      ? AppColor.clickedCard
+                      : AppColor.secondaryColor;
+
+                  Color letterColor = game.gameMap[index].reveal
+                      ? game.gameMap[index].content == "X"
+                          ? Colors.red
+                          : Colors.black
+                      : AppColor.accentColor;
+                  return GestureDetector(
+                    onTap: game.gameOver
+                        ? null
+                        : () {
+                            print("Clicked on $index");
+                            setState(() {
+                              game.getClickedCell(game.gameMap[index]);
+                            });
+                          },
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: cellColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            game.gameMap[index].reveal
+                                ? "${game.gameMap[index].content}"
+                                : "",
+                            style: TextStyle(
+                                color: letterColor,
+                                fontSize: 34.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )),
+                  );
+                },
+              ))
         ],
       ),
     );
